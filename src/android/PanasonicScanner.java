@@ -29,7 +29,7 @@ import java.util.concurrent.TimeoutException;
 /**
  * This class echoes a string called from JavaScript.
  */
-public class PanasonicScanner extends CordovaPlugin  implements BarcodeListener, ToughpadApiListener{
+public class PanasonicScanner extends CordovaPlugin implements BarcodeListener, ToughpadApiListener {
 
     public static final String ARG_ITEM_ID = "item_id";
     public static final String ACTION_ITEM_ID = ARG_ITEM_ID;
@@ -40,8 +40,9 @@ public class PanasonicScanner extends CordovaPlugin  implements BarcodeListener,
     private class EnableReaderTask extends AsyncTask<BarcodeReader, Void, Boolean> {
 
         @Override
-        protected void onPreExecute(){
+        protected void onPreExecute() {
         }
+
         @Override
         protected Boolean doInBackground(BarcodeReader... params) {
             try {
@@ -56,25 +57,27 @@ public class PanasonicScanner extends CordovaPlugin  implements BarcodeListener,
                 return false;
             }
         }
+
         @Override
         protected void onPostExecute(Boolean result) {
         }
     }
-	@Override
-	public void initialize(CordovaInterface cordova, CordovaWebView webView) {
-		try{
-			ToughpadApi.initialize(cordova.getActivity(), this);
-		}catch(Exception ex){
-			Log.e(TAG, ex.toString());
-		}
-	}
+
+    @Override
+    public void initialize(CordovaInterface cordova, CordovaWebView webView) {
+        try {
+            ToughpadApi.initialize(cordova.getActivity(), this);
+        } catch (Exception ex) {
+            Log.e(TAG, ex.toString());
+        }
+    }
 
     @Override
     public boolean execute(String action, JSONArray args, CallbackContext callbackContext) throws JSONException {
-        if (action.equals("activate")){
-			this.activateReader(callbackContext);
-			return true;
-		} else if (action.equals("deactivate")) {
+        if (action.equals("activate")) {
+            this.activateReader(callbackContext);
+            return true;
+        } else if (action.equals("deactivate")) {
             this.deactivateReader(callbackContext);
             return true;
         }
@@ -82,49 +85,47 @@ public class PanasonicScanner extends CordovaPlugin  implements BarcodeListener,
         return false;
     }
 
-	private void activateReader(CallbackContext callbackContext){
-		try {
-			List<BarcodeReader> readers = BarcodeReaderManager.getBarcodeReaders();
-			BarcodeReader selectedReader = readers.get(0);
-            selectedReader.enable(1);
-            selectedReader.pressSoftwareTrigger(true);
-			selectedReader.addBarcodeListener(this);
-			callbackContextReference = callbackContext;
-		} catch (Exception e) {
-			Log.e(TAG, e.toString());
-		}
-
-	}
+    private void activateReader(CallbackContext callbackContext) {
+        try {
+            List<BarcodeReader> readers = BarcodeReaderManager.getBarcodeReaders();
+            BarcodeReader selectedReader = readers.get(0);
+            selectedReader.enable(0);
+            selectedReader.addBarcodeListener(this);
+            callbackContextReference = callbackContext;
+        } catch (Exception e) {
+            Log.e(TAG, e.toString());
+        }
+    }
 
     private void deactivateReader(CallbackContext callbackContext) {
         try {
-			List<BarcodeReader> readers = BarcodeReaderManager.getBarcodeReaders();
-			BarcodeReader selectedReader = readers.get(0);
-            selectedReader.pressSoftwareTrigger(false);
+            List<BarcodeReader> readers = BarcodeReaderManager.getBarcodeReaders();
+            BarcodeReader selectedReader = readers.get(0);
             selectedReader.disable();
             selectedReader.clearBarcodeListener();
-			callbackContextReference = callbackContext;
-		} catch (Exception e) {
-			Log.e(TAG, e.toString());
-		}
+            callbackContextReference = callbackContext;
+        } catch (Exception e) {
+            Log.e(TAG, e.toString());
+        }
     }
 
     @Override
-    public void onRead(BarcodeReader paramBarcodeReader, BarcodeData paramBarcodeData)
-    {
-          String strBarcodeData =  paramBarcodeData.getTextData();
-          String strSymbologyId = paramBarcodeData.getSymbology();
-          message = strBarcodeData;
-          cordova.getActivity().runOnUiThread(new Runnable() {
-              public void run() {
-    			PluginResult result = new PluginResult(PluginResult.Status.OK, message);
-				result.setKeepCallback(true);
-				callbackContextReference.sendPluginResult(result);
-              }
-          });
-     }
+    public void onRead(BarcodeReader paramBarcodeReader, BarcodeData paramBarcodeData) {
+        String strBarcodeData = paramBarcodeData.getTextData();
+        String strSymbologyId = paramBarcodeData.getSymbology();
+        message = strBarcodeData;
+        cordova.getActivity().runOnUiThread(new Runnable() {
+            public void run() {
+                PluginResult result = new PluginResult(PluginResult.Status.OK, message);
+                result.setKeepCallback(true);
+                callbackContextReference.sendPluginResult(result);
+            }
+        });
+    }
 
-    public void onApiConnected(int version) { }
+    public void onApiConnected(int version) {
+    }
 
-    public void onApiDisconnected() { }
+    public void onApiDisconnected() {
+    }
 }
